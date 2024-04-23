@@ -8,8 +8,11 @@ const io = new Server(httpServer, {
 
 const allUsers = {};
 const allRooms = [];
+console.log("running1");
 
 io.on("connection", (socket) => {
+  console.log("running");
+
   allUsers[socket.id] = {
     socket: socket,
     online: true,
