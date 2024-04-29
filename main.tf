@@ -18,6 +18,35 @@ resource "aws_key_pair" "deployer" {
   public_key = file("${path.module}/my-key.pub")
 }
 
+resource "aws_vpc" "vpc_terraform" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+}
+
+resource "aws_subnet" "subnet_terraform" {
+  vpc_id     = aws_vpc.vpc_terraform.id
+  cidr_block = "10.0.1.0/24"
+}
+
+resource "aws_internet_gateway" "igw_terraform" {
+  vpc_id = aws_vpc.vpc_terraform.id
+}
+
+resource "aws_route_table" "rt_terraform" {
+  vpc_id = aws_vpc.vpc_terraform.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw_terraform.id
+  }
+}
+
+resource "aws_route_table_association" "subnet_terraform" {
+  subnet_id      = aws_subnet.subnet_terraform.id
+  route_table_id = aws_route_table.rt_terraform.id
+}
+
 resource "aws_security_group" "instances" {
   name = "instance-security-group"
   description = "security groups"
